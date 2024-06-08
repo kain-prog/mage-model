@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
+    {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+
+    {% block styles %} {% endblock %}
+
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+</head>
+<body>
+    <div class="h-screen w-full bg-white relative flex">
+
+        <!-- Sidebar -->
+        <aside class="h-full w-16 flex flex-col space-y-10 items-center justify-center relative bg-gray-800 text-white">
+
+            <!-- Home -->
+            <a href="{{ path('app_home') }}" class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:fill-gray-800 hover:bg-white hover:duration-300 hover:ease-linear focus:bg-white {% block home_active %}fill-white{% endblock %}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 576 512" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/>
+                </svg>
+            </a>
+
+            <!-- Modelos -->
+            <a href="{{ path('app_model') }}" class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:fill-gray-800 hover:text-gray-800 hover:bg-white hover:duration-300 hover:ease-linear focus:bg-white {% block models_active %}fill-white{% endblock %}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 576 512" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M528 160V416c0 8.8-7.2 16-16 16H320c0-44.2-35.8-80-80-80H176c-44.2 0-80 35.8-80 80H64c-8.8 0-16-7.2-16-16V160H528zM64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM272 256a64 64 0 1 0 -128 0 64 64 0 1 0 128 0zm104-48c-13.3 0-24 10.7-24 24s10.7 24 24 24h80c13.3 0 24-10.7 24-24s-10.7-24-24-24H376zm0 96c-13.3 0-24 10.7-24 24s10.7 24 24 24h80c13.3 0 24-10.7 24-24s-10.7-24-24-24H376z"/>
+                </svg>
+            </a>
+
+            <!-- Templates -->
+            <a href="{{ path('app_saved_templates') }}" class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:fill-gray-800 hover:text-gray-800 hover:bg-white hover:duration-300 hover:ease-linear focus:bg-white {% block templates_active %}fill-white{% endblock %}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 576 512"  stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M160 80H512c8.8 0 16 7.2 16 16V320c0 8.8-7.2 16-16 16H490.8L388.1 178.9c-4.4-6.8-12-10.9-20.1-10.9s-15.7 4.1-20.1 10.9l-52.2 79.8-12.4-16.9c-4.5-6.2-11.7-9.8-19.4-9.8s-14.8 3.6-19.4 9.8L175.6 336H160c-8.8 0-16-7.2-16-16V96c0-8.8 7.2-16 16-16zM96 96V320c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H160c-35.3 0-64 28.7-64 64zM48 120c0-13.3-10.7-24-24-24S0 106.7 0 120V344c0 75.1 60.9 136 136 136H456c13.3 0 24-10.7 24-24s-10.7-24-24-24H136c-48.6 0-88-39.4-88-88V120zm208 24a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/>
+                </svg>
+            </a>
+
+            <!-- Configuration -->
+{#            <div class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-white hover:duration-300 hover:ease-linear focus:bg-white">#}
+{#                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">#}
+{#                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />#}
+{#                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />#}
+{#                </svg>#}
+{#            </div>#}
+        </aside>
+
+
+
+        <div class="w-full h-full flex flex-col justify-between">
+            <!-- Header -->
+            <header class="h-16 w-full flex items-center relative justify-end px-5 space-x-10 bg-gray-800 z-10">
+                <!-- Informação -->
+                <div class="flex flex-shrink-0 items-center space-x-4 text-white">
+
+                    <!-- Texto -->
+                    <div class="flex flex-col items-end ">
+                        <!-- Nome -->
+                        <div class="text-md font-medium ">
+                            {%  if is_granted('IS_AUTHENTICATED_FULLY') %}
+                                {{ app.user.username }}
+                            {% endif %}
+                        </div>
+
+                        <!-- Título -->
+                        <div class="text-sm font-regular">
+                            {%  if is_granted('IS_AUTHENTICATED_FULLY') %}
+                                {{ app.user.email }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Foto -->
+
+                    <div id="img-profile" class="relative h-10 w-10 rounded-full text-gray-800 flex justify-center items-center cursor-pointer bg-gray-200 border-2 border-blue-400  select-none" >
+                        <p id="letter-profile">
+                            {{ app.user.username }}
+                        </p>
+
+                        <svg class="h-3 w-3 fill-white absolute right-[-18px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                            <path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/>
+                        </svg>
+
+                        <div id="dropdown-content" class="hidden absolute top-[50px] right-[-15px] bg-gray-800 text-white border rounded-2xl hover:opacity-80">
+                            <a class="h-full w-full btn-sm text-sm flex items-center gap-4 p-5 select-none" href="{{ path('app_logout') }}">
+                                <svg  class="h-4 w-4 fill-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                    <path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 192 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l210.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128zM160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 32C43 32 0 75 0 128L0 384c0 53 43 96 96 96l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l64 0z"/>
+                                </svg>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </header>
+
+            <!-- Main -->
+            <main class="max-w-full h-full flex overflow-auto">
+
+                {% block body %}
+
+
+
+                {% endblock %}
+
+            </main>
+        </div>
+
+    </div>
+
+    <script>
+
+        let containerImgProfile = document.querySelector('#img-profile');
+        let nameProfile = document.querySelector('#letter-profile');
+        let dropdownContent = document.querySelector('#dropdown-content');
+
+        let firstCharacter = nameProfile.textContent.trim().substring(0, 1);
+
+        nameProfile.innerText = firstCharacter;
+
+        containerImgProfile.addEventListener('click', function(){
+            dropdownContent.classList.toggle('hidden');
+        })
+
+    </script>
+</body>
+</html>

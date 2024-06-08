@@ -1,0 +1,87 @@
+{% extends 'base2.html.twig' %}
+
+{% block title %}MM - Modelo{% endblock %}
+
+{% block models_active %}fill-gray-800 bg-white{% endblock %}
+
+{% block body %}
+
+    <section class="container px-4 m-auto">
+
+        <article class="p-8 border rounded-2xl border-stone-200 container">
+
+            <div class="mb-12 text-xl">
+                <h2>Modelos disponíveis:</h2>
+            </div>
+
+            <div class="model-container container sm:columns-4 columns-2 mb-16">
+
+                {% for model in models %}
+
+                    <div id="{{ model.id }}" class="bg-gray-600 sm:mb-0 mb-14 cursor-pointer hover:opacity-80" onclick="handleClick(this)">
+                        <img class="w-full aspect-square" src="/uploads/models/{{ model.thumb }}" />
+                    </div>
+
+                {% endfor %}
+
+
+            </div>
+
+            <div class="flex justify-end">
+
+                <form id="send-model" action="{{ path('app_model_store') }}" method="post">
+                    <input type="hidden" name="id" id="id_input">
+                    <button id="avancar" type="submit" class="disabled pointer-events-none opacity-50 cursor-not-allowed btn px-10 py-2 bg-lime-500 text-slate-50" >
+                        AVANÇAR
+                    </button>
+                </form>
+
+
+            </div>
+
+
+        </article>
+
+    </section>
+
+    <script>
+
+        let model = {
+            id: null
+        }
+
+        function handleClick(clickedDiv) {
+
+            let divs = document.querySelectorAll('.model-container div');
+            let nextStep = document.querySelector('#avancar');
+            divs.forEach(function(div) {
+
+                if (div !== clickedDiv) {
+                    div.classList.remove('clicked');
+
+                }else{
+                    div.classList.add('clicked');
+                    model.id = clickedDiv.id;
+                    document.getElementById('id_input').value = model.id;
+                }
+
+            });
+
+            if(model.id !== null){
+                nextStep.classList.remove('disabled','opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            }else {
+                nextStep.classList.add('disabled', 'opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            }
+        }
+
+
+        // document.getElementById('send-model').addEventListener('submit', function(event) {
+        //     // document.getElementById('idInput').value = model.id;
+        //     const id_input = document.getElementById('id_input').value;
+        //     // event.preventDefault();
+        //     console.log(id_input);
+        // });
+
+    </script>
+
+{% endblock %}

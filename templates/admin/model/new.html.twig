@@ -1,0 +1,584 @@
+{% extends '@EasyAdmin/crud/new.html.twig' %}
+{% form_theme new_form with ea.crud.formThemes only %}
+
+{% block configured_head_contents %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.0.0/css/froala_editor.min.css" />
+    {{ encore_entry_link_tags('app') }}
+{% endblock %}
+
+{% block content_title %}Criação de Modelo{% endblock %}
+
+{% block head_javascript %}
+    {{ parent() }}
+    <script src="{{ asset('form.js', ea.assets.defaultAssetPackageName) }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.0.0/js/froala_editor.pkgd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fontfaceobserver/2.3.0/fontfaceobserver.min.js" ></script>
+    {{ encore_entry_script_tags('app') }}
+{% endblock %}
+
+{% block configured_stylesheets %}
+    <style id="style">
+        .btn-red:hover{
+            background: rgb(247 17 17) !important;
+        }
+
+        .btn-save{
+            background: #5368d5 !important;
+        }
+
+        .btn-save:hover{
+            background: #4660e7 !important;
+        }
+
+        .canvas-container{
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 1080px !important;
+            min-height: 1080px !important;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.34);
+            margin: 40px auto;
+        }
+
+        .hide-tools{
+            height: 45px;
+        }
+
+        #cvs{
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 1080px !important;
+            min-height: 1080px !important;
+        }
+    </style>
+{% endblock %}
+
+
+
+{% block main %}
+
+    {% block new_form %}
+        {{ form_start(new_form) }}
+            {{ form_row(new_form.name) }}
+            <div class="d-none">
+                {{ form_row(new_form.image) }}
+                {{ form_row(new_form.thumb) }}
+            </div>
+            {{ form_row(new_form.company) }}
+        {{ form_end(new_form) }}
+    {% endblock new_form %}
+
+    <section class="container px-4 m-auto">
+
+        <article class="p-8 my-14 border rounded-2xl border-stone-200 container">
+
+            <div class="m-auto">
+                <h2 class="text-center mb-8">Pré Visualização</h2>
+            </div>
+
+            <div class="my-3 flex justify-end m-auto" style="max-width: 1080px;">
+                <button id="save-canvas" class="btn bg-lime-500 btn-save text-white">Salvar modelo</button>
+            </div>
+
+            <div class="flex justify-center items-center">
+                <canvas id="cvs" height="1080" width="1080" ></canvas>
+
+            </div>
+
+            <div class="flex justify-end gap-12 mt-24"></div>
+
+        </article>
+    </section>
+
+
+    <div id="tools-right" class="relative bg-light rounded px-3 flex flex-column gap-2 shadow-lg" style="position: fixed; bottom:0; right:0; max-width: 395px; border: 1px solid #ddd;">
+
+        <div id="hide-tools-right" class="absolute w-3 cursor-pointer hover:bg-white" style="right: 20px; top: 15px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/>
+            </svg>
+        </div>
+
+        <div class="pe-2">
+
+            <div>
+                <h3 class="py-3 text-center mb-3 w-100" style="font-weight: 600;">Imagem</h3>
+            </div>
+
+
+            <div class="flex flex-column gap-3">
+
+                <div class="">
+                    <form id="send-bg-image" class="mt-6" >
+                        <div class=" mb-3">
+                            <p class="mb-2 text-center">Imagem de fundo:</p>
+                            <label id="label-bg-img" class="btn btn-sm w-full px-4 py-2 me-2 bg-slate-100 border active:bg-slate-50 border-slate-200 rounded mb-3" for="bg-img">Selecionar imagem de fundo</label>
+                        </div>
+                        <div class=" mb-3">
+                            <input id="bg-img" name="img" type="file" class="d-none">
+                        </div>
+                        <div class=" mb-3">
+                            <button id="btn-bg-img" class="disabled btn btn-sm w-full px-4 py-2 me-2 bg-slate-100 border active:bg-slate-50 border-slate-200 rounded mb-3" type="submit">Enviar Imagem</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div>
+                    <form id="send-img" class="mb-6" >
+                        <div class=" mb-3">
+                            <p class="mb-2 text-center">Inserir imagem:</p>
+                            <label id="label-file-img" class="btn btn-sm w-full px-4 py-2 me-2 bg-slate-100 border active:bg-slate-50 border-slate-200 rounded mb-3" for="file-img">Inserir nova imagem:</label>
+                        </div>
+                        <div class=" mb-3">
+                            <input class="d-none" id="file-img" name="img" type="file">
+                        </div>
+                        <div class=" mb-3">
+                            <button id="btn-img" class="disabled btn btn-sm w-full px-4 py-2 me-2 bg-slate-100 border active:bg-slate-50 border-slate-200 rounded mb-3" type="submit">Enviar Imagem</button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <hr>
+
+        <div>
+            <h3 class="py-3 text-center mb-2 w-100" style="font-weight: 600;">Ações</h3>
+        </div>
+
+        <div class="">
+            <div id="position-img" class="flex gap-2 justify-center">
+                <button id="move-forward" class="btn btn-sm px-4 py-2 me-2 bg-slate-100 border active:bg-slate-50 border-slate-200 rounded ">Mover para frente</button>
+                <button id="move-backward" class="btn btn-sm px-4 py-2 me-2 bg-slate-100 border active:bg-slate-50 border-slate-200 rounded">Mover para trás</button>
+            </div>
+            <div class="mt-4 w-full">
+                <button id="remove-element" class="btn-red w-full px-4 py-2 me-2 bg-red-600 border text-white active:bg-red-400 border-slate-200 rounded mb-3">Remover Elemento</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="tools-left" class="relative bg-light rounded px-3 flex flex-column gap-2 shadow-lg" style="position: fixed; bottom:0; left:0; max-width: 395px; border: 1px solid #ddd;">
+
+        <div id="hide-tools-left" class="absolute w-3 cursor-pointer hover:bg-white" style="right: 20px; top: 15px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/>
+            </svg>
+        </div>
+
+
+        <div class="px-3">
+
+            <div>
+                <h3 class="py-3 text-center mb-3 w-100" style="font-weight: 600;">Texto</h3>
+            </div>
+
+            <div class="flex flex-column gap-3 mb-3">
+                <div id="toolbar">
+                    <div class="mb-3">
+
+                        <div class=" ">
+                            <div>
+                                <div class="">
+                                    <label for="font-family-dropdown" class="text-sm">Selecione sua fonte:</label>
+                                </div>
+                                <select id="font-family-dropdown" class="px-3 mb-2 py-2 border border-slate-200 rounded">
+                                    <option value="Arial">Arial</option>
+                                    <option value="Verdana">Verdana</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Georgia">Georgia</option>
+                                    <option value="Trebuchet MS">Trebuchet MS</option>
+                                    <option value="Tahoma">Tahoma</option>
+                                    <option value="Arial Black">Arial Black</option>
+                                    <option value="Comic Sans MS">Comic Sans MS</option>
+                                    <option value="Impact">Impact</option>
+                                    <option value="Courier New">Courier New</option>
+                                    <option value="Lucida Sans Unicode">Lucida Sans Unicode</option>
+                                    <option value="Palatino Linotype">Palatino Linotype</option>
+                                    <option value="Book Antiqua">Book Antiqua</option>
+                                    <option value="Arial Narrow">Arial Narrow</option>
+                                    <option value="Calibri">Calibri</option>
+                                    <option value="Century Gothic">Century Gothic</option>
+                                    <option value="Garamond">Garamond</option>
+                                    <option value="Cambria">Cambria</option>
+                                    <option value="Franklin Gothic Medium">Franklin Gothic Medium</option>
+                                    <option value="Rockwell">Rockwell</option>
+                                    <option value="Segoe UI">Segoe UI</option>
+                                    <option value="Tahoma">Tahoma</option>
+                                    <option value="Verdana">Verdana</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="google-font-link" class="text-sm">Cole o link do Google Fonts:</label>
+                                <input type="text" id="google-font-link" class="px-3 py-2 border border-slate-200 rounded w-full">
+                                <button id="load-google-font" class="btn btn-sm px-4 py-2 bg-slate-100 border active:bg-slate-50 border-slate-200 rounded mt-2 w-full">Carregar Fonte</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <div class="flex items-center justify-center mb-3">
+                        <button id="bold" class="btn btn-sm px-4 py-2 me-2 bg-slate-100 border active:bg-slate-50 border-slate-200 rounded">Negrito</button>
+                        <button id="italic" class="btn btn-sm px-4 py-2 bg-slate-100 mx-2 border active:bg-slate-50 border-slate-200 rounded">Italico</button>
+                        {#                                <button id="underline">Underline</button>#}
+                        <input type="color" id="t-color" class="mx-2">
+                        <input type="color" id="t-bg-color" class="mx-2">
+
+                    </div>
+
+                    <div>
+                        <input type="range" min="5" max="150" value="40" id="t-size" class="text-white d-flex m-auto my-2" style="width: 100%; max-width: 315px;">
+                    </div>
+
+                    <div>
+                        <textarea id="editor" class="shadow w-full px-3 py-3 border border-slate-200 rounded outline-none focus:border-slate-500" contenteditable="true"></textarea>
+                        <button id="send-text" class="btn btn-sm px-4 w-full py-2 me-2 bg-slate-100 border active:bg-slate-50 border-slate-200 rounded">Enviar</button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}
+
+ {% block configured_javascripts %}
+     <script src="{{ asset('build/fabric.min.js') }}"></script>
+ {% endblock %}
+
+{% block configured_body_contents %}
+    <script>
+
+        const toolsLeft = document.querySelector('#tools-left');
+        const toolsRight = document.querySelector('#tools-right');
+
+        const hideToolsLeft = document.querySelector('#hide-tools-left');
+        const hideToolsRight = document.querySelector('#hide-tools-right');
+
+
+        hideToolsLeft.addEventListener('click', function() {
+            toolsLeft.classList.toggle('hide-tools');
+        });
+
+        hideToolsRight.addEventListener('click', function() {
+            toolsRight.classList.toggle('hide-tools');
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let fontFamilyDropdown = document.querySelector("#font-family-dropdown");
+            let googleFontLinkInput = document.querySelector("#google-font-link");
+            let loadGoogleFontButton = document.querySelector("#load-google-font");
+
+            function removeTags(str) {
+                const regex = /<[^>]*>/g; // Expressão regular para qualquer tag HTML
+                return str.replace(regex, ""); // Substitui tags por string vazia
+            }
+
+            loadGoogleFontButton.addEventListener('click', function() {
+
+                const fontLink = googleFontLinkInput.value;
+                if (fontLink) {
+                    const fontName = getFontNameFromLink(fontLink);
+
+                    const style = document.querySelector('#style');
+                    const cleanedString = removeTags(fontLink);
+                    style.textContent = cleanedString + '\n' + style.textContent;
+
+                    const optionElement = document.createElement("option");
+
+                    optionElement.value = fontName;
+                    optionElement.text = fontName;
+                    fontFamilyDropdown.add(optionElement);
+
+                    // fontFamilyDropdown.value = fontName;
+
+                    loadAndUse(fontName);
+
+                    alert(`Fonte ${fontName} carregada com sucesso!`);
+                }
+            });
+
+            function getFontNameFromLink(link) {
+                const regex = /family=([^:&]+)/;
+                const match = link.match(regex);
+                return match ? match[1].replace(/\+/g, " ") : null;
+            }
+
+            function loadAndUse(font) {
+                var myfont = new FontFaceObserver(font);
+                myfont.load()
+                    .then(function() {
+                        canvas.getActiveObject().set("fontFamily", font);
+                        canvas.requestRenderAll();
+                    }).catch(function(e) {
+                });
+            }
+
+            function dataURLtoBlob(dataURL) {
+                const byteString = atob(dataURL.split(',')[1]);
+                const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+
+                return new Blob([ab], { type: mimeString });
+            }
+
+            document.querySelector('#save-canvas').addEventListener('click', function () {
+                const canvasData = canvas.toJSON();
+                const canvasImage = canvas.toDataURL({
+                    format: 'png',
+                        quality: 0.8
+                });
+
+
+                const blob = dataURLtoBlob(canvasImage);
+                const file = new File([blob], 'canvas.png', { type: 'image/png' });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+
+                const thumbInput = document.querySelector('#Model_thumb_file');
+                thumbInput.files = dataTransfer.files;
+
+                const imageInput = document.querySelector('#Model_image');
+                imageInput.value = JSON.stringify(canvasData);
+
+                alert('Modelo salvo!');
+            });
+        });
+
+        let canvas = new fabric.Canvas('cvs');
+        let backgroundImage;
+
+        let sendImg = document.querySelector('#send-img');
+        let fileImg = document.querySelector('#file-img');
+        let labelFileImg = document.querySelector('#label-file-img');
+        let btnImg = document.querySelector('#btn-img');
+
+        let bgImg = document.querySelector('#bg-img');
+        let sendBgImage = document.querySelector('#send-bg-image');
+        let labelBgImg = document.querySelector('#label-bg-img');
+        let btnBgImg = document.querySelector('#btn-bg-img');
+
+        let positionImg = document.querySelector('#position-img');
+
+        bgImg.addEventListener('change', function(){
+            labelBgImg.textContent = this.value;
+
+            if(this.value){
+                btnBgImg.classList.remove('disabled');
+                console.log('tem valor')
+            } else {
+                labelBgImg.textContent = 'Enviar Imagem';
+                btnBgImg.classList.add('disabled');
+            }
+
+        });
+
+        bgImg.addEventListener('change', function(){
+            labelBgImg.textContent = this.value;
+
+            if(this.value){
+                btnBgImg.classList.remove('disabled');
+                console.log('tem valor')
+            } else {
+                labelBgImg.textContent = 'Enviar Imagem';
+                btnBgImg.classList.add('disabled');
+            }
+
+        });
+
+        btnBgImg.addEventListener('click', function(e){
+            e.preventDefault();
+
+            let file = bgImg.files[0];
+
+            let reader = new FileReader();
+
+            reader.onload = function(event) {
+                fabric.Image.fromURL(event.target.result, function(img) {
+                    // img.scale(0.25);
+                    canvas.add(img);
+                    img.selectable = false;
+                    backgroundImage = img;
+                });
+            };
+
+            reader.readAsDataURL(file);
+
+        });
+
+        fileImg.addEventListener('change', function(){
+            labelFileImg.textContent = this.value;
+
+            if(this.value){
+                btnImg.classList.remove('disabled');
+                console.log('tem valor')
+            } else {
+                labelFileImg.textContent = 'Enviar Imagem';
+                btnImg.classList.add('disabled');
+            }
+
+        });
+
+        btnImg.addEventListener('click', function(e){
+            e.preventDefault();
+
+            let file = fileImg.files[0];
+
+            let reader = new FileReader();
+
+            reader.onload = function(event) {
+                fabric.Image.fromURL(event.target.result, function(img) {
+                    // img.scale(0.25);
+                    canvas.add(img);
+                });
+            };
+
+            reader.readAsDataURL(file);
+
+        });
+
+        document.querySelector('#move-forward').addEventListener('click', function() {
+            let selectedObject = canvas.getActiveObject();
+            if (selectedObject) {
+                canvas.bringForward(selectedObject);
+            }
+        });
+
+        document.querySelector('#move-backward').addEventListener('click', function() {
+            let selectedObject = canvas.getActiveObject();
+            if (selectedObject) {
+                canvas.sendBackwards(selectedObject);
+            }
+        });
+
+        document.querySelector('#remove-element').addEventListener('click', function() {
+            let selectedObject = canvas.getActiveObject();
+            if (selectedObject) {
+                canvas.remove(selectedObject);
+            }
+        });
+
+
+        // Funções para manipular estilos de texto
+
+        function setStyle(object, styleName, value) {
+            if (object.setSelectionStyles && object.isEditing) {
+                var style = {};
+                style[styleName] = value;
+                object.setSelectionStyles(style);
+            } else {
+                object[styleName] = value;
+            }
+        }
+
+        function getStyle(object, styleName) {
+            return (object.getSelectionStyles && object.isEditing) ?
+                object.getSelectionStyles()[styleName] :
+                object[styleName];
+        }
+
+        function addHandler(id, fn, eventName) {
+            document.getElementById(id)[eventName || 'onclick'] = function() {
+                let obj = canvas.getActiveObject();
+                if (obj) {
+                    fn.call(this, obj);
+                    canvas.renderAll();
+                }
+            };
+        }
+
+        addHandler('bold', function(obj) {
+            var selectionStart = obj.selectionStart;
+            var selectionEnd = obj.selectionEnd;
+            var fontWeight = getStyle(obj, 'fontWeight');
+
+            var isBold = fontWeight === 'bold' || fontWeight === '700';
+            var style = isBold ? 'normal' : 'bold';
+
+            if (selectionStart !== selectionEnd) {
+                obj.setSelectionStyles({ fontWeight: style }, selectionStart, selectionEnd);
+            } else {
+                setStyle(obj, 'fontWeight', style);
+            }
+
+            canvas.renderAll();
+        });
+
+        addHandler('italic', function(obj) {
+            var selectionStart = obj.selectionStart;
+            var selectionEnd = obj.selectionEnd;
+            var fontStyle = getStyle(obj, 'fontStyle');
+
+            var isItalic = fontStyle === 'italic';
+            var style = isItalic ? 'normal' : 'italic';
+
+            if (selectionStart !== selectionEnd) {
+                obj.setSelectionStyles({ fontStyle: style }, selectionStart, selectionEnd);
+            } else {
+                setStyle(obj, 'fontStyle', style);
+            }
+
+            canvas.renderAll();
+        });
+
+        addHandler('t-color', function(obj) {
+            setStyle(obj, 'fill', this.value);
+        }, 'onchange');
+
+        addHandler('t-bg-color', function(obj) {
+            setStyle(obj, 'textBackgroundColor', this.value);
+        }, 'onchange');
+
+        addHandler('t-size', function(obj) {
+            setStyle(obj, 'fontSize', parseInt(this.value, 10));
+        }, 'onchange');
+
+        canvas.on('selection:updated', function(event) {
+            var obj = event.target;
+            if (obj && obj.type === 'i-text') {
+            }
+        });
+
+        document.querySelector('#send-text').addEventListener('click', function() {
+            let text = document.querySelector('#editor').value.trim();
+            console.log(text);
+
+            if (text !== "") {
+                var fabricText = new fabric.IText(text, {
+                    left: 200,
+                    top: 400,
+                    fontSize: 100,
+                    fontFamily: 'Arial'
+                });
+
+                canvas.add(fabricText);
+            }
+        });
+
+        document.querySelector('#font-family-dropdown').addEventListener('change', function() {
+            let selectedFont = this.value;
+            let activeObject = canvas.getActiveObject();
+
+            if (activeObject && activeObject.type === 'i-text') {
+                activeObject.set('fontFamily', selectedFont);
+                canvas.renderAll();
+            } else {
+                alert('Selecione um texto antes de mudar a fonte.');
+            }
+        });
+
+    </script>
+
+{% endblock %}
