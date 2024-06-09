@@ -62,6 +62,7 @@
             <div class="d-none">
                 {{ form_row(new_form.image) }}
                 {{ form_row(new_form.thumb) }}
+                {{ form_row(new_form.fonts) }}
             </div>
             {{ form_row(new_form.company) }}
         {{ form_end(new_form) }}
@@ -262,6 +263,7 @@
         const hideToolsLeft = document.querySelector('#hide-tools-left');
         const hideToolsRight = document.querySelector('#hide-tools-right');
 
+        let fonts = [];
 
         hideToolsLeft.addEventListener('click', function() {
             toolsLeft.classList.toggle('hide-tools');
@@ -289,7 +291,15 @@
 
                     const style = document.querySelector('#style');
                     const cleanedString = removeTags(fontLink);
+
+                    if(style.textContent.includes(removeTags(fontLink))){
+                        alert(`A Fonte ${fontName} ja existe!`);
+                        return;
+                    }
+
                     style.textContent = cleanedString + '\n' + style.textContent;
+
+                    fonts.push(removeTags(fontLink));
 
                     const optionElement = document.createElement("option");
 
@@ -334,16 +344,27 @@
                 return new Blob([ab], { type: mimeString });
             }
 
+            function generateUniqueHash() {
+                let now = Date.now().toString();
+                let hash = 0;
+                for (let i = 0; i < now.length; i++) {
+                    let char = now.charCodeAt(i);
+                    hash = (hash << 5) - hash + char;
+                    hash |= 0; // Convert to 32-bit integer
+                }
+                return hash;
+            }
+
             document.querySelector('#save-canvas').addEventListener('click', function () {
+
                 const canvasData = canvas.toJSON();
                 const canvasImage = canvas.toDataURL({
                     format: 'png',
                         quality: 0.8
                 });
 
-
                 const blob = dataURLtoBlob(canvasImage);
-                const file = new File([blob], 'canvas.png', { type: 'image/png' });
+                const file = new File([blob], `${generateUniqueHash()}`, { type: 'image/png' });
                 const dataTransfer = new DataTransfer();
                 dataTransfer.items.add(file);
 
@@ -352,6 +373,9 @@
 
                 const imageInput = document.querySelector('#Model_image');
                 imageInput.value = JSON.stringify(canvasData);
+
+                const fontsInput = document.querySelector('#Model_fonts');
+                fontsInput.value = fonts.join(' ');
 
                 alert('Modelo salvo!');
             });

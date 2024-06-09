@@ -20,6 +20,9 @@ class Model
     #[ORM\Column(type: Types::JSON)]
     private string $image;
 
+    #[ORM\Column(type: Types::JSON)]
+    private string $fonts;
+
     #[ORM\Column]
     private string $thumb;
 
@@ -50,6 +53,16 @@ class Model
     public function setImage(string $image): void
     {
         $this->image = $image;
+    }
+
+    public function getFonts(): string
+    {
+        return $this->fonts;
+    }
+
+    public function setFonts(string $fonts): void
+    {
+        $this->fonts = $fonts;
     }
 
     public function getThumb(): string

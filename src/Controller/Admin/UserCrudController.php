@@ -56,7 +56,7 @@ class UserCrudController extends AbstractCrudController
                     return $companyRepository->createQueryBuilder('p')
                         ->orderBy('p.name', 'ASC');
                 })
-                ->setFormTypeOption('placeholder', 'Selecione um projeto')
+                ->setFormTypeOption('placeholder', 'Selecione uma Empresa')
                 ->setRequired(true),
             ChoiceField::new('roles')
                 ->setChoices([

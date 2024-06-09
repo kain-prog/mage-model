@@ -4,11 +4,11 @@ module.exports = {
     "./assets/**/*.js",
     "./templates/**/*.html.twig",
   ],
-  prefix: "tw-",
-  important: true,
-  corePlugins: {
-    preflight: false,
-  },
+  // prefix: "tw-",
+  // important: true,
+  // corePlugins: {
+  //   preflight: false,
+  // },
   theme: {
     extend: {},
   },

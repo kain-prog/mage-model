@@ -7,13 +7,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.0.0/js/froala_editor.pkgd.min.js"></script>
 {% endblock %}
 
+{% block javascripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fontfaceobserver/2.3.0/fontfaceobserver.min.js" ></script>
+{% endblock %}
+
 {% block models_active %}fill-gray-800 bg-white{% endblock %}
 
 
-{% block body %}
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');
+{% block styles_in_body %}
+    <style id="style">
         .canvas-container{
             width: 100% !important;
             height: 100% !important;
@@ -29,9 +31,13 @@
             min-height: 1080px !important;
         }
     </style>
+{% endblock %}
+
+{% block body %}
 
     <section class="container px-4 m-auto">
         <input id="template-loaded" type="hidden" value="{{ model.image }}">
+        <input id="fonts-loaded" type="hidden" value="{{ model.fonts }}">
 
         <article class="p-8 my-14 border rounded-2xl border-stone-200 container">
 
@@ -77,7 +83,7 @@
                                     <div class="form-control">
                                         <label for="font-family-dropdown" class="text-sm">Selecione sua fonte:</label>
                                     </div>
-                                    <select id="font-family-dropdown" class="px-5 py-2 border border-slate-200 rounded">
+                                    <select id="font-family-dropdown" class="px-5 py-2 border border-slate-200 rounded mb-3">
                                         <option value="Arial">Arial</option>
                                         <option value="Verdana">Verdana</option>
                                         <option value="Times New Roman">Times New Roman</option>
@@ -103,7 +109,7 @@
                                         <option value="Verdana">Verdana</option>
                                     </select>
                                     <div>
-                                        <button id="lock-toggle">Travar/Destravar</button>
+                                        <button id="lock-toggle" class=" btn btn-sm px-4 py-2 bg-slate-100 border active:bg-slate-50 border-slate-200 rounded mb-3">Travar/Destravar</button>
                                     </div>
                                 </div>
                                 <button id="bold" class="btn btn-sm px-4 py-2 me-2 bg-slate-100 border active:bg-slate-50 border-slate-200 rounded mb-3">Negrito</button>
@@ -139,6 +145,30 @@
     </section>
 
     <script src="{{ asset('build/fabric.min.js') }}"></script>
+    <script>
+
+        const styleHTML = document.querySelector('#style');
+        const fontsLoaded = document.querySelector('#fonts-loaded').value;
+
+        function getFontNameFromLink(link) {
+            const regex = /family=([^:&]+)/;
+            const match = link.match(regex);
+            return match ? match[1].replace(/\+/g, " ") : null;
+        }
+
+        styleHTML.textContent = '\n' + fontsLoaded + '\n' + styleHTML;
+
+        const fontsArray = fontsLoaded.split('; ');
+        let outputFonts = [];
+
+        fontsArray.forEach((element) => {
+            outputFonts.push(getFontNameFromLink(element));
+            let optionElement = document.createElement("option");
+            optionElement.value = getFontNameFromLink(element);
+            optionElement.text = getFontNameFromLink(element);
+            document.querySelector('#font-family-dropdown').add(optionElement);
+        });
+    </script>
 
     <script>
 
@@ -147,6 +177,11 @@
 
         let canvasStateStack = [];
         let isRedoing = false;
+
+        const templateLoaded = JSON.parse(document.querySelector('#template-loaded').value);
+
+        canvas.loadFromJSON(templateLoaded, canvas.renderAll.bind(canvas), function(o, object) {
+        });
 
         // Função para salvar o estado atual do canvas na pilha
         function saveCanvasState() {
@@ -186,13 +221,6 @@
         canvas.on('object:modified', saveCanvasState);
         canvas.on('object:added', saveCanvasState);
         canvas.on('object:removed', saveCanvasState);
-
-        const templateLoaded = JSON.parse(document.querySelector('#template-loaded').value);
-        console.log(templateLoaded);
-
-        canvas.loadFromJSON(templateLoaded, canvas.renderAll.bind(canvas), function(o, object) {
-            console.log('Objeto carregado:', object);
-        });
 
         let sendElements = document.querySelector('#send-elements');
         let sendImg = document.querySelector('#send-img');
@@ -416,10 +444,11 @@
                 event.target !== document.querySelector('#color') && event.target !== document.querySelector('#bold') &&
                 event.target !== document.querySelector('#italic') && event.target !== document.querySelector('#remove-element') &&
                 event.target !== document.querySelector('#move-forward') && event.target !== document.querySelector('#move-backward') &&
-                event.target !== document.querySelector('#send-text') && event.target !== document.querySelector('#font-family-dropdown')){
+                event.target !== document.querySelector('#send-text') && event.target !== document.querySelector('#font-family-dropdown') &&
+                event.target !== document.querySelector('#bg-color'))
+            {
                 canvas.discardActiveObject();
                 canvas.requestRenderAll();
-                console.log('dif');
             }
         });
 
