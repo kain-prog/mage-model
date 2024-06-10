@@ -5,6 +5,8 @@ namespace App\Controller\Admin;
 use App\Entity\Model;
 use App\Entity\Company;
 use App\Repository\CompanyRepository;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -28,11 +30,26 @@ class ModelCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('Modelos')
             ->setEntityLabelInSingular('Modelo')
             ->setPageTitle('index', 'Gerenciamento de modelos')
-            ->setPageTitle('new', 'Criação de Modelo')
+            ->setPageTitle('new', 'Criação de modelo')
+            ->setPageTitle('edit', 'Editar modelo')
             ->setPaginatorPageSize(3)
             ->overrideTemplates([
                 'crud/new' => 'admin/model/new.html.twig',
             ]);
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->update(Crud::PAGE_INDEX, Action::NEW,
+                fn (Action $action) => $action->setLabel('Novo Modelo')
+            )
+            ->update(Crud::PAGE_NEW, Action::SAVE_AND_ADD_ANOTHER,
+                fn (Action $action) => $action->setLabel('Criar e adicionar outro')
+            )
+            ->update(Crud::PAGE_NEW, Action::SAVE_AND_RETURN,
+                fn (Action $action) => $action->setLabel('Criar')
+            );
     }
 
     public function configureFields(string $pageName): iterable
@@ -45,6 +62,7 @@ class ModelCrudController extends AbstractCrudController
             TextField::new('image'),
             TextField::new('fonts'),
             ImageField::new('thumb')
+                ->setBasePath('uploads/models')
                 ->setUploadDir('public/uploads/models'),
             AssociationField::new('company')
                 ->setLabel('Empresa')

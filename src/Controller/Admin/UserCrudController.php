@@ -6,6 +6,8 @@ use App\Entity\Company;
 use App\Entity\User;
 use App\Repository\CompanyRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -31,12 +33,28 @@ class UserCrudController extends AbstractCrudController
 
     }
 
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->update(Crud::PAGE_INDEX, Action::NEW,
+                fn (Action $action) => $action->setLabel('Novo Usuário')
+            )
+            ->update(Crud::PAGE_NEW, Action::SAVE_AND_ADD_ANOTHER,
+                fn (Action $action) => $action->setLabel('Criar e adicionar outro')
+            )
+            ->update(Crud::PAGE_NEW, Action::SAVE_AND_RETURN,
+                fn (Action $action) => $action->setLabel('Criar')
+            );
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
             ->setEntityLabelInPlural('Usuários')
             ->setEntityLabelInSingular('Usuário')
             ->setPageTitle('index', 'Gerenciamento de usuários')
+            ->setPageTitle('new', 'Criação de usuários')
+            ->setPageTitle('edit', 'Editar usuário')
             ->setPaginatorPageSize(5);
     }
 
@@ -44,25 +62,30 @@ class UserCrudController extends AbstractCrudController
     {
         return [
             IdField::new('id')->hideOnForm(),
-            TextField::new('username'),
-            TextField::new('email'),
+            TextField::new('username')
+                ->setLabel('Usuário')
+                ->setFormTypeOption('attr', ['placeholder' => 'Insira um nome de usuário' ]),
+            TextField::new('email')
+                ->setFormTypeOption('attr', ['placeholder' => 'Insira um e-mail válido' ]),
             TextField::new('password', 'Senha')
+                ->setFormTypeOption('attr', ['placeholder' => 'Insira um uma senha' ])
                 ->setFormType(PasswordType::class)
                 ->onlyOnForms()
                 ->setRequired(true),
             AssociationField::new('company')
+                ->setLabel('Empresa')
                 ->setFormTypeOption('class', Company::class)
                 ->setFormTypeOption('query_builder', function (CompanyRepository $companyRepository) {
                     return $companyRepository->createQueryBuilder('p')
                         ->orderBy('p.name', 'ASC');
                 })
-                ->setFormTypeOption('placeholder', 'Selecione uma Empresa')
+                ->setFormTypeOption('placeholder', 'Selecione uma Empresa', )
                 ->setRequired(true),
             ChoiceField::new('roles')
+                ->setLabel('Permissões')
                 ->setChoices([
                     'Admin' => 'ROLE_ADMIN',
                     'User' => 'ROLE_USER',
-                    // Adicione outras roles conforme necessário
                 ])
                 ->allowMultipleChoices()
                 ->renderExpanded()

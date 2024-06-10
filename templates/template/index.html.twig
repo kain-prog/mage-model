@@ -167,6 +167,9 @@
             optionElement.value = getFontNameFromLink(element);
             optionElement.text = getFontNameFromLink(element);
             document.querySelector('#font-family-dropdown').add(optionElement);
+
+            let myfont = new FontFaceObserver(getFontNameFromLink(element));
+            myfont.load()
         });
     </script>
 
