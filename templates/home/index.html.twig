@@ -11,8 +11,83 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Seja bem vindo {{ app.user.username }}! ✅</h1>
+    <h1 class="mb-6 pt-16 pb-8 text-center">Seja bem vindo {{ app.user.username }}! ✅</h1>
+
+    {% for model in models %}
+
+        <div id="alert-{{ model.id }}" class="py-4 lg:px-4 animate-bounce duration-500 delay-100">
+            <div class="p-2 bg-indigo-800 items-center text-indigo-100 leading-none lg:rounded-full w-full flex lg:inline-flex" role="alert">
+                <span class="flex rounded-full bg-indigo-500 uppercase px-2 py-1 text-sm mr-3 font-semibold">Novo</span>
+                <span class="mr-8 text-left">Um novo modelo está disponível!</span>
+                <a class="flex items-center justify-start text-sm hover:font-bold duration-300" href="{{ path('app_model') }}">
+                    Clique aqui para ver
+                    <svg class="fill-current opacity-75 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z"/></svg>
+                </a>
+
+                <div class="flex flex-auto justify-end pr-3">
+                    <p id="{{ model.id }}" class="close-toast cursor-pointer text-sm">
+                        x
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 
 
 </div>
+
+    <script>
+
+        function setCookie(name, value) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (365 * 24 * 60 * 60 * 1000 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function checkAlertCookie(alertId) {
+            return getCookie("alert-" + alertId) !== null;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let closeToast = document.querySelectorAll('.close-toast');
+
+            closeToast.forEach((element) => {
+                const alertId = element.id;
+
+                // Verifica se o alerta deve ser exibido
+                if (checkAlertCookie(alertId)) {
+                    const alertElement = document.getElementById('alert-' + alertId);
+                    if (alertElement) {
+                        alertElement.style.display = 'none';
+                    }
+                }
+
+                element.addEventListener('click', function () {
+
+                    setCookie("alert-" + alertId, "closed" );
+                    const alertElement = document.getElementById('alert-' + alertId);
+                    if (alertElement) {
+                        alertElement.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+
+    </script>
 {% endblock %}

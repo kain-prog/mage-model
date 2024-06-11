@@ -71,8 +71,16 @@
                             <button id="move-backward" class="btn btn-sm px-4 py-2 bg-gray-800 active:bg-gray-400 border-slate-300 text-white rounded">Mover para trás</button>
 
                         </div>
-                        <div class="mt-5 w-full">
+                        <div class="my-5 w-full">
                             <button id="remove-element" class="btn btn-sm w-full bg-red-600 active:bg-red-300 px-4 py-2 text-white rounded">Remover Elemento</button>
+                        </div>
+
+                        <div class="flex">
+                            <input type="checkbox" class="shrink-0 mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" id="hs-checked-checkbox" checked="">
+                            <label for="hs-checked-checkbox" class="text-sm text-gray-500 ms-3 dark:text-neutral-400">Guardar template?</label>
+                        </div>
+                        <div class="max-w-sm space-y-3 form-control">
+                            <input id="hs-checked-name" type="text" class="border my-3 border-gray-300 py-2 px-4 rounded w-full" placeholder="Nome do meu template" />
                         </div>
                     </div>
 
@@ -146,6 +154,7 @@
 
     <script src="{{ asset('build/fabric.min.js') }}"></script>
     <script>
+        let canvas = new fabric.Canvas('cvs');
 
         const styleHTML = document.querySelector('#style');
         const fontsLoaded = document.querySelector('#fonts-loaded').value;
@@ -161,32 +170,44 @@
         const fontsArray = fontsLoaded.split('; ');
         let outputFonts = [];
 
-        fontsArray.forEach((element) => {
-            outputFonts.push(getFontNameFromLink(element));
-            let optionElement = document.createElement("option");
-            optionElement.value = getFontNameFromLink(element);
-            optionElement.text = getFontNameFromLink(element);
-            document.querySelector('#font-family-dropdown').add(optionElement);
-
-            let myfont = new FontFaceObserver(getFontNameFromLink(element));
-            myfont.load()
+        Promise.all(
+            fontsArray.map((element) => {
+                const fontName = getFontNameFromLink(element);
+                outputFonts.push(fontName);
+                let optionElement = document.createElement("option");
+                optionElement.value = fontName;
+                optionElement.text = fontName;
+                document.querySelector('#font-family-dropdown').add(optionElement);
+                return new FontFaceObserver(fontName).load();
+            })
+        ).then(() => {
+            const templateLoaded = JSON.parse(document.querySelector('#template-loaded').value);
+            canvas.loadFromJSON(templateLoaded, canvas.renderAll.bind(canvas), function(o, object) {
+                canvas.renderAll();
+            });
+        }).catch((err) => {
+            console.error('Erro ao carregar as fontes:', err);
         });
+
     </script>
 
     <script>
 
-        let canvas = new fabric.Canvas('cvs');
+        let hsCheckedCheckbox = document.querySelector('#hs-checked-checkbox');
+        let hsCheckedName = document.querySelector('#hs-checked-name');
         let backgroundImage;
-
         let canvasStateStack = [];
         let isRedoing = false;
 
-        const templateLoaded = JSON.parse(document.querySelector('#template-loaded').value);
+        hsCheckedCheckbox.addEventListener('change' , function () {
 
-        canvas.loadFromJSON(templateLoaded, canvas.renderAll.bind(canvas), function(o, object) {
-        });
+            if(!hsCheckedCheckbox.checked){
+                hsCheckedName.classList.add('hidden');
+            }else{
+                hsCheckedName.classList.remove('hidden');
+            }
+        })
 
-        // Função para salvar o estado atual do canvas na pilha
         function saveCanvasState() {
             if (!isRedoing) {
                 const canvasState = JSON.stringify(canvas);
@@ -274,7 +295,14 @@
                 format: 'png'
             });
 
-            var downloadLink = document.createElement('a');
+            if(hsCheckedCheckbox.checked) {
+                if(!hsCheckedName.value){
+                    hsCheckedName.classList.add('border-red-600', 'outline-none');
+                    return;
+                }
+            }
+
+            const downloadLink = document.createElement('a');
             downloadLink.href = canvasDataUrl;
             downloadLink.download = 'canvas_export.png';
 
@@ -284,7 +312,6 @@
             document.body.removeChild(downloadLink);
         });
 
-        // Funções para manipular estilos de texto
         function setStyle(object, styleName, value) {
             if (object.setSelectionStyles && object.isEditing) {
                 var style = {};
